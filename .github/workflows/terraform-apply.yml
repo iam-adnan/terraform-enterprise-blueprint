@@ -1,0 +1,66 @@
+name: Terragrunt Apply
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "live/**"
+      - "modules/**"
+
+  # Manual dispatch with environment selector for controlled promotions.
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "dev"
+        type: choice
+        options: [dev]
+      component:
+        description: "Component path (e.g. live/dev/us-east-1/compute)"
+        required: true
+        default: "live/dev/us-east-1/compute"
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  TF_VERSION: "1.9.5"
+  TG_VERSION: "0.67.0"
+  AWS_REGION: "us-east-1"
+
+jobs:
+  apply:
+    name: Terragrunt Apply — ${{ inputs.component || 'live/dev/us-east-1/compute' }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'dev' }}   # Uses GitHub Environment protection rules
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: GitHubActions-Apply-${{ github.run_id }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - name: Setup Terragrunt
+        run: |
+          curl -sL https://github.com/gruntwork-io/terragrunt/releases/download/v${TG_VERSION}/terragrunt_linux_amd64 \
+            -o /usr/local/bin/terragrunt
+          chmod +x /usr/local/bin/terragrunt
+          terragrunt --version
+
+      - name: Terragrunt Apply
+        working-directory: ${{ inputs.component || 'live/dev/us-east-1/compute' }}
+        run: |
+          terragrunt apply -auto-approve -no-color

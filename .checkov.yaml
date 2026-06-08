@@ -1,0 +1,28 @@
+# Checkov configuration for policy-as-code scanning.
+# Run: checkov -d modules/ --config-file .checkov.yaml
+
+directory:
+  - modules/
+
+framework:
+  - terraform
+
+compact: true
+quiet: false
+output: cli
+
+# Checks skipped with documented justification:
+skip-check:
+  # CKV_AWS_7: KMS key rotation — acceptable for dev; enforce in prod via separate config
+  - CKV_AWS_7
+  # CKV2_AWS_5: SG not attached check produces false positives with dynamic SG attachment
+  - CKV2_AWS_5
+
+# Enforce these critical checks; fail build if violated:
+check:
+  - CKV_AWS_97   # ECS task definitions must not use privileged containers
+  - CKV_AWS_336  # ECS tasks must not run as root
+  - CKV_AWS_249  # ECS task execution role must use least-privilege policies
+  - CKV_AWS_111  # IAM policies must not allow * actions
+  - CKV_AWS_355  # CloudWatch log groups must have retention set
+  - CKV2_AWS_28  # ECS services must have auto-scaling enabled
