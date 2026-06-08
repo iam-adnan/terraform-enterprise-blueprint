@@ -90,14 +90,16 @@ variable "ingress_rules" {
 variable "task_definitions" {
   description = "Map of ECS task definitions. Each key becomes the ECS service name."
   type = map(object({
-    image            = string
-    cpu              = number
-    memory           = number
-    port             = number
-    desired_count    = number
-    min_capacity     = number
-    max_capacity     = number
-    environment_vars = map(string)
+    image                    = string
+    cpu                      = number
+    memory                   = number
+    port                     = number
+    desired_count            = number
+    min_capacity             = number
+    max_capacity             = number
+    environment_vars         = map(string)
+    readonly_root_filesystem = optional(bool, false)
+    run_as_user              = optional(string, null)
   }))
 
   validation {

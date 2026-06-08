@@ -171,8 +171,8 @@ resource "aws_ecs_task_definition" "this" {
         }
       }
 
-      readonlyRootFilesystem = true
-      user                   = "1000"
+      readonlyRootFilesystem = each.value.readonly_root_filesystem
+      user                   = each.value.run_as_user
     }
   ])
 

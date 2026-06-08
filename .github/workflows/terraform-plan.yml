@@ -63,6 +63,7 @@ jobs:
       fail-fast: false
       matrix:
         component:
+          - live/dev/us-east-1/vpc
           - live/dev/us-east-1/compute
 
     steps:

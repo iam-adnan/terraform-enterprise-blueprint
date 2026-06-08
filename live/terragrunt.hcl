@@ -36,15 +36,11 @@ remote_state {
     encrypt        = true
     dynamodb_table = "terraform-locks-${local.account_id}"
 
-    # Versioning and server-side encryption are enforced by bucket policy;
-    # these client-side flags act as a belt-and-suspenders guard.
     skip_bucket_versioning         = false
     skip_bucket_ssencryption       = false
     skip_bucket_root_access        = true
-    skip_bucket_enforced_tls       = false
+    skip_bucket_enforced_tls       = true
     enable_lock_table_ssencryption = true
-
-    accesslogging_bucket_name = "tfstate-access-logs-${local.account_id}-${local.aws_region}"
   }
 }
 
