@@ -23,8 +23,7 @@ dependency "vpc" {
     private_subnets = ["subnet-0000000000000001", "subnet-0000000000000002", "subnet-0000000000000003"]
   }
 
-  mock_outputs_allowed_applies             = false
-  mock_outputs_merge_strategy_with_state   = "shallow"
+  mock_outputs_allowed_terraform_commands  = ["plan", "validate"]
 }
 
 # ---------------------------------------------------------------------------
