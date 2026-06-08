@@ -78,8 +78,8 @@ inputs = {
     }
     worker = {
       image         = "busybox:1.36"
-      cpu           = 128
-      memory        = 256
+      cpu           = 256
+      memory        = 512
       port          = 0
       desired_count = 1
       min_capacity  = 1
