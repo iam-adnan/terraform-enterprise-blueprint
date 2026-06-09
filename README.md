@@ -168,9 +168,9 @@ The script sets three repository variables:
 
 | Variable | Example value |
 |---|---|
-| `AWS_ACCOUNT_ID` | `522826274343` |
+| `AWS_ACCOUNT_ID` | `00000000000` |
 | `AWS_REGION` | `us-east-1` |
-| `AWS_OIDC_ROLE_ARN` | `arn:aws:iam::522826274343:role/github-actions-terragrunt` |
+| `AWS_OIDC_ROLE_ARN` | `arn:aws:iam::000000000000:role/github-actions-terragrunt` |
 
 > **Note:** These are GitHub **Variables** (`vars.*`), not Secrets. They are visible in workflow logs and are intentionally non-sensitive.
 
