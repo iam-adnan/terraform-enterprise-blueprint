@@ -99,7 +99,7 @@ jobs:
 
       - name: Terragrunt Apply — VPC
         working-directory: live/dev/us-east-1/vpc
-        run: terragrunt apply -auto-approve -no-color --non-interactive
+        run: terragrunt --non-interactive apply -auto-approve -no-color
 
   apply-compute:
     name: Terragrunt Apply — Compute
@@ -174,4 +174,4 @@ jobs:
 
       - name: Terragrunt Apply — Compute
         working-directory: live/dev/us-east-1/compute
-        run: terragrunt apply -auto-approve -no-color --non-interactive
+        run: terragrunt --non-interactive apply -auto-approve -no-color

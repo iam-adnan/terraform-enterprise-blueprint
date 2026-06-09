@@ -69,7 +69,7 @@ jobs:
 
       - name: Destroy Compute
         working-directory: live/${{ github.event.inputs.environment }}/us-east-1/compute
-        run: terragrunt destroy -auto-approve -no-color --non-interactive
+        run: terragrunt --non-interactive destroy -auto-approve -no-color
 
   destroy-vpc:
     name: Destroy VPC
@@ -102,4 +102,4 @@ jobs:
 
       - name: Destroy VPC
         working-directory: live/${{ github.event.inputs.environment }}/us-east-1/vpc
-        run: terragrunt destroy -auto-approve -no-color --non-interactive
+        run: terragrunt --non-interactive destroy -auto-approve -no-color
