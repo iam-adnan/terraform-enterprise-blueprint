@@ -98,6 +98,7 @@ variable "task_definitions" {
     min_capacity             = number
     max_capacity             = number
     environment_vars         = map(string)
+    command                  = optional(list(string), null)
     readonly_root_filesystem = optional(bool, false)
     run_as_user              = optional(string, null)
   }))

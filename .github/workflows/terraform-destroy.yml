@@ -1,20 +1,19 @@
-name: Terragrunt Apply
+name: Terragrunt Destroy
 
+# Manual trigger only — never runs automatically.
 on:
-  push:
-    branches: [main]
-    paths:
-      - "live/**"
-      - "modules/**"
-
   workflow_dispatch:
     inputs:
       environment:
-        description: "Target environment"
+        description: "Environment to destroy"
         required: true
         default: "dev"
         type: choice
         options: [dev]
+      confirm:
+        description: "Type the environment name again to confirm (e.g. dev)"
+        required: true
+        type: string
 
 permissions:
   id-token: write
@@ -27,10 +26,23 @@ env:
   AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
 
 jobs:
-  apply-vpc:
-    name: Terragrunt Apply — VPC
+  validate:
+    name: Validate Confirmation
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment || 'dev' }}
+    steps:
+      - name: Confirm environment name matches
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "${{ github.event.inputs.environment }}" ]; then
+            echo "::error::Confirmation '${{ github.event.inputs.confirm }}' does not match environment '${{ github.event.inputs.environment }}'. Aborting."
+            exit 1
+          fi
+          echo "Confirmed — proceeding with destruction of ${{ github.event.inputs.environment }}"
+
+  destroy-compute:
+    name: Destroy Compute
+    runs-on: ubuntu-latest
+    needs: validate
+    environment: ${{ github.event.inputs.environment }}
 
     steps:
       - name: Checkout
@@ -41,7 +53,7 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_OIDC_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-          role-session-name: GitHubActions-Apply-VPC-${{ github.run_id }}
+          role-session-name: GitHubActions-Destroy-Compute-${{ github.run_id }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -55,15 +67,15 @@ jobs:
             -o /usr/local/bin/terragrunt
           chmod +x /usr/local/bin/terragrunt
 
-      - name: Terragrunt Apply — VPC
-        working-directory: live/dev/us-east-1/vpc
-        run: terragrunt apply -auto-approve -no-color --non-interactive
+      - name: Destroy Compute
+        working-directory: live/${{ github.event.inputs.environment }}/us-east-1/compute
+        run: terragrunt destroy -auto-approve -no-color --non-interactive
 
-  apply-compute:
-    name: Terragrunt Apply — Compute
+  destroy-vpc:
+    name: Destroy VPC
     runs-on: ubuntu-latest
-    needs: apply-vpc
-    environment: ${{ inputs.environment || 'dev' }}
+    needs: destroy-compute
+    environment: ${{ github.event.inputs.environment }}
 
     steps:
       - name: Checkout
@@ -74,7 +86,7 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_OIDC_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-          role-session-name: GitHubActions-Apply-Compute-${{ github.run_id }}
+          role-session-name: GitHubActions-Destroy-VPC-${{ github.run_id }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -88,6 +100,6 @@ jobs:
             -o /usr/local/bin/terragrunt
           chmod +x /usr/local/bin/terragrunt
 
-      - name: Terragrunt Apply — Compute
-        working-directory: live/dev/us-east-1/compute
-        run: terragrunt apply -auto-approve -no-color --non-interactive
+      - name: Destroy VPC
+        working-directory: live/${{ github.event.inputs.environment }}/us-east-1/vpc
+        run: terragrunt destroy -auto-approve -no-color --non-interactive

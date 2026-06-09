@@ -1,5 +1,6 @@
 # Root Terragrunt configuration — inherited by all child modules via include "root"
-# Implements: DRY remote state, dynamic provider generation, and path-based context parsing.
+# Implements: DRY remote state (auto-created by Terragrunt), dynamic provider generation,
+# and path-based context parsing.
 
 locals {
   # Derive environment, region, and component from the relative directory path.
@@ -18,8 +19,9 @@ locals {
 }
 
 # ---------------------------------------------------------------------------
-# Remote State — S3 backend with DynamoDB locking, generated per component.
-# Bucket and lock table are named deterministically from account + region.
+# Remote State — Terragrunt auto-creates the S3 bucket and DynamoDB table on
+# first run. No manual bootstrap required. Bucket and table names are derived
+# deterministically from account ID + region.
 # ---------------------------------------------------------------------------
 remote_state {
   backend = "s3"
@@ -38,8 +40,8 @@ remote_state {
 
     skip_bucket_versioning         = false
     skip_bucket_ssencryption       = false
-    skip_bucket_root_access        = true
-    skip_bucket_enforced_tls       = true
+    skip_bucket_root_access        = false
+    skip_bucket_enforced_tls       = false
     enable_lock_table_ssencryption = true
   }
 }

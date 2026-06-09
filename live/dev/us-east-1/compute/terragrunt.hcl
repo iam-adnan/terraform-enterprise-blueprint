@@ -13,7 +13,7 @@ include "root" {
 # ---------------------------------------------------------------------------
 # Dependency: VPC layer
 # mock_outputs lets terragrunt plan succeed before the vpc state exists.
-# mock_outputs_allowed_applies = false prevents a real apply using fake IDs.
+# mock_outputs_allowed_terraform_commands restricts mocks to plan/validate only — real applies require real VPC outputs.
 # ---------------------------------------------------------------------------
 dependency "vpc" {
   config_path = "../vpc"
@@ -77,15 +77,16 @@ inputs = {
       }
     }
     worker = {
-      image         = "busybox:1.36"
+      image         = "public.ecr.aws/amazonlinux/amazonlinux:2023"
       cpu           = 256
       memory        = 512
       port          = 0
       desired_count = 1
       min_capacity  = 1
       max_capacity  = 2
+      command       = ["/bin/sh", "-c", "while true; do echo 'worker running'; sleep 60; done"]
       environment_vars = {
-        APP_ENV  = "dev"
+        APP_ENV   = "dev"
         LOG_LEVEL = "debug"
       }
     }
