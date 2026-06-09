@@ -18,9 +18,10 @@ on:
         options: [dev]
 
 permissions:
-  id-token: write       # Required for OIDC token issuance
+  id-token: write        # Required for OIDC token issuance
   contents: read
-  pull-requests: write  # Required to post plan output as PR comment
+  pull-requests: write   # Required to post plan output as PR comment
+  security-events: write # Required to upload Checkov SARIF to Code Scanning
 
 env:
   TF_VERSION: "1.9.5"
@@ -48,10 +49,19 @@ jobs:
           skip_check: "CKV_AWS_7"   # KMS key rotation — acceptable in dev
 
       - name: Upload Checkov SARIF to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
+        continue-on-error: true   # requires GitHub Advanced Security on private repos
         with:
           sarif_file: checkov-results.sarif
+
+      - name: Upload Checkov results as artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: checkov-results
+          path: checkov-results.sarif
+          retention-days: 7
 
       - name: Run TFLint
         uses: terraform-linters/setup-tflint@v4
