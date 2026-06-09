@@ -38,10 +38,10 @@ remote_state {
     encrypt        = true
     dynamodb_table = "terraform-locks-${local.account_id}"
 
-    skip_bucket_versioning         = false
-    skip_bucket_ssencryption       = false
-    skip_bucket_root_access        = false
-    skip_bucket_enforced_tls       = false
+    skip_bucket_versioning         = false  # Terragrunt enables versioning silently
+    skip_bucket_ssencryption       = true   # Bootstrap step applies SSE
+    skip_bucket_root_access        = true   # Bootstrap step applies bucket policy
+    skip_bucket_enforced_tls       = true   # Bootstrap step applies TLS-enforcement policy
     enable_lock_table_ssencryption = true
   }
 }
