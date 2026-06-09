@@ -157,8 +157,11 @@ jobs:
       - name: Terragrunt Plan
         id: plan
         working-directory: ${{ matrix.component }}
+        env:
+          TERRAGRUNT_NON_INTERACTIVE: "true"
+          TF_INPUT: "false"
         run: |
-          terragrunt --non-interactive plan -out=tfplan.binary -no-color 2>&1 | tee plan.txt
+          terragrunt plan -out=tfplan.binary -no-color 2>&1 | tee plan.txt
           echo "exitcode=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
 
       - name: Post plan to PR
